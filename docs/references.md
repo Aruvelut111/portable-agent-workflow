@@ -1,174 +1,170 @@
-# 研究来源与取舍 / Sources and design choices
+# 参考资料 / References
 
 [中文正文](../README.md) · [English article](../README.en.md)
 
-查阅日期 / Checked: **2026-11-17**。文档和默认分支会变化；下列记录说明本次写作吸收了什么，以及哪些结论仍需在实际环境中验证。论文标明本次阅读版本。外部文章中的性能数字没有移植为本工作流的成绩。
+下面是整理文章时对照过的资料，按主题放在一起。每项后面简单记了它和本文的关系，方便继续读。查阅日期为 **2026-11-17**；网页会更新，论文标出了阅读版本。
 
-Documentation and default branches can change. These notes identify what informed this article and what still requires local validation. Paper versions identify the editions read. Performance figures from other systems are not results of this workflow.
+These are the sources consulted while preparing the article, grouped by topic. Each note explains why it is here and where its relevance ends. Checked on **2026-11-17**. Web pages change; paper notes identify the versions read.
 
-## Context and recovery
+外部研究的成绩只属于相应实验。本文没有测过跨平台效率，也没有安装实测这里列出的编排项目。
+
+Results reported by other researchers belong to their experiments. This article has no cross-platform productivity measurements, and the orchestration projects listed here were not installed or tested for it.
+
+## 上下文与接力 / Context and handoffs
 
 <a id="s01"></a>
-**[1] OpenAI — [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/).**
+**[1] OpenAI — [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/)**
 
-吸收：短入口、可导航的仓库知识、让 Agent 能访问并使用实际工程依据。取舍：文中的具体审查循环、合并策略和基础设施属于其团队条件；我们没有把它们写成每个任务的固定门禁。
+文中的仓库知识组织很有参考价值：入口保持简短，让 Agent 能继续找到工程里的依据。具体审查循环、合并方式和基础设施，则要看团队自己的条件。
 
-Adopted: short entry points, navigable repository knowledge, and engineering evidence agents can access and use. Boundary: that team's review loops, merge policy, and infrastructure depend on its workload. They are not mandatory gates here.
+Its approach to repository knowledge is useful: keep entry points short and let agents find the engineering evidence behind them. Review loops, merge practices, and infrastructure depend on the team.
 
 <a id="s02"></a>
-**[2] Anthropic — [Effective context engineering for AI agents](https://www.anthropic.com/research/effective-context-engineering-for-ai-agents).**
+**[2] Anthropic — [Effective context engineering for AI agents](https://www.anthropic.com/research/effective-context-engineering-for-ai-agents)**
 
-吸收：按需获取、外部笔记、压缩与子代理各有适用场景。取舍：摘要要保留可追溯入口；仅有摘要不能代替原始依据，也不能保证不丢信息。
+按需检索、外部记录、压缩和子代理，可以分别处理不同的上下文问题。摘要也可能漏掉重要细节，所以还要保留回到原件的入口。
 
-Adopted: retrieval on demand, external notes, compaction, and subagents serve different needs. Boundary: a summary should retain paths to evidence; it cannot replace original evidence or guarantee lossless recovery.
+Retrieval, external notes, compaction, and subagents address different context problems. Summaries can lose information, which is why the workflow keeps links to originals.
 
 <a id="s03"></a>
-**[3] Anthropic — [Effective harnesses for long-running agents](https://www.anthropic.com/research/effective-harnesses-for-long-running-agents).**
+**[3] Anthropic — [Effective harnesses for long-running agents](https://www.anthropic.com/research/effective-harnesses-for-long-running-agents)**
 
-吸收：让后继会话能从明确产物和进度继续，区分局部进展与目标完成。取舍：初始化 Agent、功能清单和会话安排是其实现，本文只吸收可接续的原则。
+关注后一个会话怎样从已有文件和进度继续，也讨论局部进展与整体完成的区别。初始化 Agent、功能清单等安排可以参考，是否需要取决于项目。
 
-Adopted: leave explicit artifacts and progress for successors; distinguish partial progress from goal completion. Boundary: the initializer, feature list, and session arrangement are one implementation, not a universal template.
+This discusses how later sessions continue from existing files and progress, and how partial progress differs from completing the goal. Arrangements such as an initializer and feature list need to fit the project.
 
-## Content and execution interfaces
+## 格式与接口 / Formats and interfaces
 
 <a id="s04"></a>
-**[4] Agent Skills — [Specification](https://agentskills.io/specification).**
+**[4] Agent Skills — [Specification](https://agentskills.io/specification)**
 
-吸收：以清晰触发说明和可按需展开的文件封装程序性知识。取舍：格式兼容不等于所有宿主的工具、脚本依赖、权限和加载行为相同。本文没有导出任何私有 Skill。
+提供了用文件组织可复用方法、按需展开内容的格式。宿主对工具、依赖、权限和加载的处理仍可能不同。本文只介绍库的组织方法，没有发布本地 Skill 正文。
 
-Adopted: package procedural knowledge with clear activation descriptions and files that can be expanded on demand. Boundary: format compatibility does not establish equivalent host tools, script dependencies, permissions, or loading. No private skills are exported here.
+The specification provides a file format for reusable procedures and content loaded as needed. Hosts can still differ in tools, dependencies, permissions, and loading. This article describes the library's organization without publishing local skill contents.
 
 <a id="s05"></a>
-**[5] Model Context Protocol — [Architecture](https://modelcontextprotocol.io/docs/learn/architecture).**
+**[5] Model Context Protocol — [Architecture](https://modelcontextprotocol.io/docs/learn/architecture)**
 
-吸收：在宿主、客户端和能力服务之间复用明确接口。取舍：MCP 本身不承担项目规划、任务可靠投递或业务结果验收。
+用于理解宿主、客户端和能力服务怎么连接。项目规划、任务投递后的跟进、最终结果检查，还需要使用方另行安排。
 
-Adopted: reuse defined interfaces between hosts, clients, and capability services. Boundary: MCP itself does not provide project planning, reliable task delivery, or acceptance of business outcomes.
+This explains connections between hosts, clients, and capability services. Project planning, following dispatched tasks, and checking the final result still need their own arrangements.
 
 <a id="s06"></a>
-**[6] Agent Client Protocol — [Protocol overview](https://agentclientprotocol.com/protocol/overview).**
+**[6] Agent Client Protocol — [Protocol overview](https://agentclientprotocol.com/protocol/overview)**
 
-吸收：客户端与编码 Agent 可以通过既有协议交互，而非重新创造每个平台的通信方式。取舍：会话恢复等能力依实现与协商结果而定；协议不等于一个跨平台项目管理系统。
+客户端和编码 Agent 之间已有可复用的通信协议。会话加载等能力需要看实现和协商结果，接了协议以后，项目协作仍有其他事情要处理。
 
-Adopted: clients and coding agents can use an existing communication protocol. Boundary: capabilities such as session loading depend on implementation and negotiation. A protocol is not a cross-platform project-management system.
+Clients and coding agents can use an existing communication protocol. Capabilities such as session loading depend on implementation and negotiation; project collaboration also needs work beyond connecting the protocol.
 
-## Collaboration and its limits
+## 多 Agent / Multiple agents
 
 <a id="s07"></a>
-**[7] Anthropic — [How we built our multi-agent research system](https://www.anthropic.com/research/multi-agent-research-system).**
+**[7] Anthropic — [How we built our multi-agent research system](https://www.anthropic.com/research/multi-agent-research-system)**
 
-吸收：按问题派发、隔离探索上下文、给执行者清晰任务、持久恢复和原始错误可见性。取舍：广度研究中获得的收益与成本不能直接外推到紧密耦合的工程任务。
+可以参考它怎样派任务、分开探索上下文、保存进度，以及保留原始错误。这里研究任务的收益和成本，不能直接套到几个人共同修改一个工程的情况。
 
-Adopted: task-directed delegation, isolated exploration contexts, clear assignments, durable recovery, and visible original failures. Boundary: gains and costs in breadth-oriented research cannot be directly generalized to tightly coupled engineering work.
+Useful details include task assignment, separate exploration contexts, saved progress, and original errors. The gains and costs in this research workload cannot be transferred directly to agents editing a tightly coupled project.
 
 <a id="s08"></a>
-**[8] OpenAI — [Codex subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents).**
+**[8] OpenAI — [Codex subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents)**
 
-吸收：主会话收集有边界的并行任务结果；探索输出可以留在子上下文。取舍：可用性、触发方式、权限和当前并行额度以实际客户端为准。本文不承诺无限成员或持久自治。
+说明主会话怎样收回相对独立的工作，以及如何把大量探索留在子上下文里。使用时仍要查当前客户端的触发方式、权限和并行额度。
 
-Adopted: collect results from bounded parallel tasks while leaving exploration output in separate contexts. Boundary: availability, triggering, permissions, and concurrency depend on the actual client. No unlimited team or persistent autonomy is promised.
+This describes collecting fairly independent work in the main conversation while keeping extensive exploration in separate contexts. Triggering, permissions, and concurrency need to be checked in the current client.
 
 <a id="s09"></a>
-**[9] Cemri et al. — [Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657), read v3.**
+**[9] Cemri et al. — [Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/abs/2503.13657), v3**
 
-吸收：从系统设计、成员对齐与验证等结构因素调查失败。取舍：研究所分析的模型、框架和任务有范围；不能据此断言一个本地故障必然属于其中某类，也不能认为模型能力无关。
+论文从系统设计、成员对齐和验证等方面归纳失败原因，可以帮助我们找排查方向。它分析的是特定模型、框架和任务，不能只凭分类给一个本地故障定因，模型能力也仍会影响结果。
 
-Adopted: investigate structural failures in system design, agent alignment, and verification. Boundary: the analyzed models, frameworks, and tasks have a scope. The taxonomy neither diagnoses every local failure nor makes model capability irrelevant.
+The paper groups failures in system design, agent alignment, and verification, offering useful directions for investigation. Its models, frameworks, and tasks have a scope. The categories alone do not diagnose a local failure, and model capability still matters.
 
 <a id="s10"></a>
-**[10] Kim et al. — [Towards a Science of Scaling Agent Systems](https://arxiv.org/abs/2512.08296), read v3.**
+**[10] Kim et al. — [Towards a Science of Scaling Agent Systems](https://arxiv.org/abs/2512.08296), v3**
 
-吸收：按任务结构和协调成本判断多 Agent 的价值。取舍：受控基准中的架构偏好不等于我们项目的最优成员数或效率预测。论文版本有扩展，本文依据 v3，不把早期博客的样本规模混用为当前论文结论。
+参考它对任务结构、协调成本和多 Agent 收益的讨论。本文没有据此推算最优成员数或效率。阅读的是扩展后的 v3，没有沿用早期博客的样本规模。
 
-Adopted: evaluate collaboration against task structure and coordination cost. Boundary: architecture preferences in controlled benchmarks do not determine our optimal team size or productivity. We read v3 and do not mix earlier blog sample sizes with the revised paper.
+This informs the discussion of task structure, coordination costs, and multi-agent gains. It is not used to predict an optimal team size or productivity. The version read was v3, without carrying over sample sizes from earlier blog coverage.
 
-## State, orchestration, and actual implementation
+## 状态与调度 / State and scheduling
 
 <a id="s11"></a>
-**[11] Google ADK — [State](https://github.com/google/adk-docs/blob/main/docs/sessions/state.md).**
+**[11] Google ADK — [State](https://github.com/google/adk-docs/blob/main/docs/sessions/state.md)**
 
-吸收：会话状态的范围、更新方式和持久化服务需要明确。取舍：内存服务与持久服务行为不同；“有 state”不足以证明重启后能恢复。
+状态存在哪、怎么更新、能保留多久，都需要看服务的实现。内存服务和持久服务的行为不同，重启恢复要单独确认。
 
-Adopted: define state scope, update behavior, and persistence service explicitly. Boundary: in-memory and persistent services behave differently. Having state does not establish restart recovery.
+State scope, updates, and lifetime depend on the service. In-memory and persistent services behave differently, so restart recovery needs a separate check.
 
 <a id="s12"></a>
-**[12] LangGraph — [Persistence](https://docs.langchain.com/oss/python/langgraph/persistence).**
+**[12] LangGraph — [Persistence](https://docs.langchain.com/oss/python/langgraph/persistence)**
 
-吸收：用明确的持久检查点支撑后续读取与继续执行。取舍：保存状态不自动提供任意外部副作用的 exactly-once 保证；恢复仍需处理实际提交情况。
+持久检查点可以帮助读取状态和继续执行。对发布、写数据库这类外部操作，恢复时还得判断上次有没有实际提交；保存状态本身没有为任意外部操作提供 exactly-once 保证。
 
-Adopted: explicit persisted checkpoints support inspection and continuation. Boundary: saving state does not automatically guarantee exactly-once behavior for arbitrary external side effects; recovery still needs to account for actual commits.
+Persisted checkpoints support inspection and continuation. Recovery from publishing, database writes, or other external actions still needs to determine whether the earlier action committed. Saving state alone does not guarantee exactly-once behavior for arbitrary external effects.
 
 <a id="s13"></a>
-**[13] OpenAI — [Codex app-server](https://learn.chatgpt.com/docs/app-server).**
+**[13] OpenAI — [Codex app-server](https://learn.chatgpt.com/docs/app-server)**
 
-吸收：现成的会话、执行轮次和流式事件接口可以用于接入。取舍：接口可调用不等于可靠队列已经建成；本文没有提供调度器实现。
+已有线程、执行轮次和流式事件接口可以接入。要做可靠的派发和重试，还得在接口之上实现相应逻辑。本文没有附带调度器。
 
-Adopted: existing thread, turn, and streamed-event interfaces can support integrations. Boundary: callable interfaces do not establish an implemented reliable queue. This repository ships no scheduler.
+Thread, turn, and streamed-event interfaces are available for integrations. Reliable dispatch and retry logic must still be implemented around them. This repository includes no scheduler.
 
 <a id="s14"></a>
-**[14] Orchestrator.inc — [Agent Orchestrator](https://github.com/OrchestratorInc/agent-orchestrator).**
+**[14] Orchestrator.inc — [Agent Orchestrator](https://github.com/OrchestratorInc/agent-orchestrator)**
 
-吸收：以现成项目评估主 Agent 调度、工作区隔离与反馈路由。取舍：当前仓库文档围绕代码、分支和 PR；大型桌面应用的共享运行资源仍要专门安排。本次写作未安装或实测该项目。
+文档介绍了主 Agent 调度、工作区隔离和反馈路由，值得按实际需求评估。目前偏代码、分支和 PR 工作；共用大型桌面应用时，运行资源仍需另行协调。
 
-Adopted: evaluate an existing project for lead-agent scheduling, workspace isolation, and feedback routing. Boundary: current documentation centers on code, branches, and PRs. Shared runtime resources in large desktop applications still need specific coordination. We did not install or test it for this article.
+The documentation describes lead-agent scheduling, workspace isolation, and feedback routing. It is worth evaluating for a concrete need. Its current focus is code, branches, and PRs; shared runtime resources in desktop applications need additional coordination.
 
 <a id="s15"></a>
-**[15] Vibe Kanban — [MCP server](https://www.vibekanban.com/docs/integrations/vibe-kanban-mcp-server).**
+**[15] Vibe Kanban — [MCP server](https://www.vibekanban.com/docs/integrations/vibe-kanban-mcp-server)**
 
-吸收：已有任务、关系、会话启动与执行查询接口可以减少人工转发。取舍：这些接口仍需被负责人或调度程序使用，不能把看板展示直接等同于自动闭环。本次写作未安装或实测该项目。
+已有任务、任务关系、会话启动和执行查询接口，可以研究怎样省掉一部分人工转发。负责人或调度程序仍需要使用这些接口跟进任务。
 
-Adopted: existing task, relationship, session-start, and execution-inspection interfaces can reduce forwarding. Boundary: a lead agent or scheduler must use them. A visible board does not establish an automatic end-to-end loop. We did not install or test it for this article.
+Existing interfaces cover tasks, relationships, starting sessions, and inspecting execution. They may help reduce manual forwarding. A lead agent or scheduler still needs to use them to follow the work.
 
-## Revisit scaffolding as conditions change
+## 方法也要更新 / Revisiting the method
 
 <a id="s16"></a>
-**[16] Anthropic — [Harness design for long-running application development](https://www.anthropic.com/research/harness-design-long-running-apps).**
+**[16] Anthropic — [Harness design for long-running application development](https://www.anthropic.com/research/harness-design-long-running-apps)**
 
-吸收：逐项检查流程部件的实际贡献，模型增强后减少不再需要的补偿。取舍：其规划者、生成者、评估者和冲刺实验依赖特定模型与任务，不照搬成固定组织架构。
+文中实验会随模型变化，移除部分不再需要的安排。这提醒我回头检查旧流程的价值。规划、生成、评估和冲刺的具体组合，仍属于它当时的实验条件。
 
-Adopted: inspect the contribution of individual process components and reduce compensation that becomes unnecessary as models improve. Boundary: its planner, generator, evaluator, and sprint experiments depend on particular models and tasks, rather than defining a fixed organization.
+The experiments remove some practices as models change. That is a useful reason to revisit older workflow choices. The particular planner, generator, evaluator, and sprint arrangements belong to those experiments.
 
 <a id="s17"></a>
-**[17] Anthropic — [Scaling Managed Agents: Decoupling the brain from the hands](https://www.anthropic.com/research/managed-agents).**
+**[17] Anthropic — [Scaling Managed Agents: Decoupling the brain from the hands](https://www.anthropic.com/research/managed-agents)**
 
-吸收：把会话、harness 与执行环境视为可分别演进的责任。取舍：这是托管基础设施设计，与本文在本地保留可迁移工作材料的层次不同；我们没有声称实现了同样的运行隔离。
+从基础设施角度，把会话、harness 和执行环境分别处理，便于各自演进。本文讲的是本地资料和方法怎样保留，两者处在不同层次；这里没有实现同样的托管运行隔离。
 
-Adopted: treat sessions, harnesses, and execution environments as responsibilities that can evolve separately. Boundary: this hosted infrastructure design operates at a different layer from portable local working material. We do not claim equivalent runtime isolation.
+This treats sessions, harnesses, and execution environments separately so they can evolve independently. It operates at a different layer from keeping local material and procedures. This repository does not implement the same hosted runtime isolation.
 
 <a id="s18"></a>
-**[18] Google Antigravity — [Artifacts](https://antigravity.google/docs/artifacts).**
+**[18] Google Antigravity — [Artifacts](https://antigravity.google/docs/artifacts)**
 
-吸收：用可查看的计划、差异和结果支持人参与关键判断。取舍：具体审批行为随配置变化，本文不要求每一步都暂停。
+可查看的计划、修改和结果，有助于人参与重要判断。具体审批方式看配置，本文也没有要求每一步暂停等待。
 
-Adopted: inspectable plans, diffs, and results help people make important judgments. Boundary: approval behavior depends on configuration. This workflow does not require pausing after every step.
+Inspectable plans, changes, and results help people make important judgments. Approval behavior depends on configuration; this workflow does not call for pausing after every step.
 
 <a id="s19"></a>
-**[19] Anthropic — [Building effective agents](https://www.anthropic.com/research/building-effective-agents).**
+**[19] Anthropic — [Building effective agents](https://www.anthropic.com/research/building-effective-agents)**
 
-吸收：从简单可组合方案开始，根据问题选择工作流和自主决策。取舍：文章已提示部分工具背景发生变化；保留设计原则，具体能力查当前文档。
+参考它从简单、可组合做法开始，按问题选择流程的思路。这是一篇较早的文章，原文也提示了工具环境的变化，具体能力需要再看当前文档。
 
-Adopted: start with simple composable approaches and choose workflow structure and autonomy according to the problem. Boundary: the article itself notes changes in the tooling landscape. We retain design principles and use current documentation for capability claims.
+This informs the preference for simple, composable approaches chosen for the problem. It is an older article and notes changes in tooling; current capabilities need current documentation.
 
 ## Figure method
 
 <a id="s20"></a>
-**[20] K-Dense — [Scientific Visualization Skill](https://github.com/K-Dense-AI/scientific-agent-skills/blob/main/skills/scientific-visualization/SKILL.md) and [Scientific Schematics Skill](https://github.com/K-Dense-AI/scientific-agent-skills/blob/main/skills/scientific-schematics/SKILL.md).**
+**[20] K-Dense — [Scientific Visualization Skill](https://github.com/K-Dense-AI/scientific-agent-skills/blob/main/skills/scientific-visualization/SKILL.md) · [Scientific Schematics Skill](https://github.com/K-Dense-AI/scientific-agent-skills/blob/main/skills/scientific-schematics/SKILL.md)**
 
-采用前者的相关指导：忠实表达、冗余编码、清楚字号、矢量导出与实际查看。后者用于比较，当前方案以生成位图为主，本次没有调用它的生成服务、安装 Skill 或使用其脚本。图示由本仓库原创 Matplotlib 代码绘制；不是数据结果图。
+图示参考了前者关于清楚表达、字号、线型和颜色配合、矢量导出以及查看成图的建议。也比较过后者，目前主要走生成位图的方式。本次图示由原创 Matplotlib 代码绘制，没有安装这些 Skill、使用其脚本或调用生成服务。
 
-We applied relevant visualization guidance: faithful representation, redundant encoding, readable typography, vector export, and inspection. The schematic skill was evaluated as an alternative; its current workflow primarily generates raster drafts. We did not call that service, install skills, or use their scripts. Figures are drawn with original Matplotlib code in this repository and are not empirical result plots.
+The visualization guidance informed typography, redundant use of line styles and color, vector export, and inspection. The schematic skill was also considered; its current approach primarily generates raster images. These figures use original Matplotlib code, without installing the skills, using their scripts, or calling a generation service.
 
 <a id="s21"></a>
-**[21] Kassis, T., Agarwal, V., He, Y., Patel, D., & Brueckner, A. M. (2026). [Scientific Agent Skills: A Library of Procedural Knowledge for Research Agents](https://doi.org/10.48550/arXiv.2609.00065).**
+**[21] Kassis, T., Agarwal, V., He, Y., Patel, D., & Brueckner, A. M. (2026). [Scientific Agent Skills: A Library of Procedural Knowledge for Research Agents](https://doi.org/10.48550/arXiv.2609.00065), v2**
 
-该库的论文说明，查阅时为 v2。用于来源归属；它没有提供本文工作流的任务效果实证。
+这是上述库的论文说明，列在这里方便追溯来源。它没有评测本文的工作流。
 
-The library's paper, v2 at consultation, is credited for provenance. It provides no task-level evidence for this workflow's effectiveness.
-
-## What this comparison changed / 本次对照带来的调整
-
-- **把可迁移内容与运行机制分开。** 可以共享资料和方法，同时承认每个平台的恢复与权限差异。 / **Separate portable content from runtime mechanisms.** Shared material can coexist with different recovery and permission behavior.
-- **把调度、协作与接力区分。** 成员能对话，不等于任务自动接续；有文件，也不等于结果已集成。 / **Distinguish messaging, orchestration, and handoff.** Communication does not establish automatic continuation, and files do not establish integration.
-- **保留执行者的判断空间。** 方法和工具说明其适用范围，并允许从原件纠错。 / **Keep executor judgment available.** Methods and tools state their scope and allow correction from original evidence.
-- **让流程可以删减。** 重复出现的问题才值得固化，条件变化后再检验必要性。 / **Allow process to shrink.** Repeated problems may justify structure; changed conditions justify reassessing it.
-- **以可运行结果和人的负担观察价值。** 本文没有把厂商研究结果、仓库热度或 Agent 数量当作自身验证。 / **Observe usable outcomes and human effort.** Vendor results, repository popularity, and agent counts are not validation of this workflow.
+The paper describes the library above and is included for provenance. It does not evaluate this workflow.

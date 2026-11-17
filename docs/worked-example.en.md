@@ -1,62 +1,55 @@
-# Worked example: add search to a local document browser
+# An example: add search to a local document browser
 
 [Main article](../README.en.md) · [中文](worked-example.zh-CN.md)
 
-This is a hypothetical example of the workflow. Files, tasks, and conclusions are illustrative. This repository does not implement or test the application described here.
+Here is a hypothetical example of how the workflow could be used. The application and results are illustrative; this repository does not implement it.
 
-## Derive an implementable direction
+## Start with the request
 
-The user says: “My documents are growing. I want AI to help me search them. I heard vector databases are good; start a few agents and build it.”
+Suppose I already have a document browser that opens local folders. The collection has grown, so I ask an agent: “Add search. Maybe use a vector database, and get a few agents working on it.”
 
-The integration owner first examines the application and the documents. Assume there is already a folder browser, most material is text and Markdown, and the user often searches for terms, filenames, and phrases before opening the original. Some attachments cannot yet be read. Documents should remain on the machine.
+I want documents to be easier to find. After looking at the collection, the agent finds mostly text and Markdown. I usually search by terms, filenames, and exact phrases. There are also attachments the application cannot read yet. The documents need to stay local.
 
-The current recommendation is to reuse file-reading logic and an established full-text search capability, then add keyword search, original-text navigation, and coverage information to the browser. Compare semantic search later if actual queries reveal a gap. The user's example informed the investigation without making a particular database the goal.
+We could reuse the existing reader, add full-text search, and make results open the original text. Queries that keywords handle poorly can inform a later comparison with semantic search. Attachments, automatic updates, and duplicates stay on the list while we connect the first complete search path.
 
-The first path ends with a person entering a term, seeing a match, and opening the correct original location. Attachment reading, incremental updates, duplicate documents, and semantic queries remain visible needs. The first path does not complete the whole request.
+## Check what we already have
 
-## What to retrieve from the library
+The agent can look in the tool registry for readers, search interfaces, and ways to interact with the page. The knowledge library may explain encoding and format issues. Read relevant skills when needed. The project record provides the current version, entry point, and previous decisions.
 
-The owner looks up material relevant to the current problem:
+If the registry has no match, continue into the code or public libraries. Try candidate components on a few documents and check whether their results fit the current page. Keep unreadable inputs and original errors available for investigation.
 
-- The capability registry: actual invocation and limitations of existing readers, search interfaces, and interface checks.
-- The knowledge library: confirmed facts about formats, encoding, and indexing coverage.
-- Reusable procedures: only the import or delivery methods needed now.
-- The project ledger: the application's current version, decisions, runtime entry point, and related work.
+## Agree on how the pieces will connect
 
-If an entry is not found, continue into the project code or public libraries. A failed lookup describes that lookup's result. When a candidate component is found, check that it processes the chosen input and produces something the current interface can consume.
+Assume indexing and the results panel can be developed separately. One agent handles reading, indexing, and queries; another works on the page.
 
-## Arrange collaboration
+They first need to agree on what a result contains: file identity, match location, an excerpt, and which documents the query covered. The exact fields depend on the application. Workers can discuss location formats directly and record the decision with the project.
 
-Assume two pieces can progress independently: one worker investigates and connects indexing; another builds the results panel. The owner establishes shared result semantics, then assigns non-overlapping file scopes.
+They can edit different files and use separate development indexes. The agent bringing the pieces together updates the main application, avoiding concurrent writes to one index. A small job could stay with one agent instead.
 
-The consumer needs to understand original-file identity, match location, snippet, and search coverage. The full set of fields depends on the application. Workers can discuss position representation directly and communicate decisions affecting the public interface to the owner.
+The indexing assignment might read:
 
-Each working copy uses an independent index file. The owner updates the main application during integration. This isolates runtime data as well as code and avoids two processes modifying one index. For a small task, the owner can implement the whole change directly.
+> Add full-text search to the current document browser. Start with text and Markdown in the user-selected directory, keep originals read-only, and reuse the existing reader and search capabilities. Return snippets and original locations so the page can open a match. You own the search module and relevant tests; discuss shared interface changes with the page worker. Deliver the changes, run instructions, and results from a few representative documents. Explain which inputs could not be read. Replace a candidate component if it doesn't fit, and leave the reason.
 
-## An actionable task description
+That should be enough to start. The assignment doesn't need the entire search history.
 
-> Connect the existing full-text search capability to the current document browser so that selected text and Markdown documents return snippets and original locations. Use the current project entry point and user-selected directory; keep original documents read-only. Change the search module and its existing tests. Coordinate changes to the public result interface with the integration owner. Deliver a callable implementation, actual changes, and reproduction instructions. Completion means representative inputs can be searched, the results panel can consume locations, and unreadable inputs have explicit coverage information. You may replace a candidate component; record the reason in the current project record.
+## Connect it to the page
 
-The description establishes the goal and boundaries while leaving implementation choices to the executor. It does not copy the whole research history into the task.
+Once indexing returns results, connect it to the panel. Search for a term and open a match. Does it show the right file at the right location? This checks whether both sides interpret a position the same way.
 
-## Reach the actual consumer
+Then change a sample document, refresh, and search again. Is the new content searchable? Have old positions updated? If navigation lands on the wrong line, follow file reading, index positions, transport, and page navigation to find the first error.
 
-After the indexing worker reports that the interface returns results, the owner connects it to the real panel. Clicking a result and checking its original location is a discriminating check that covers both identity and interface consumption.
+If attachments remain unreadable, explain which documents the query covered. Missing results can still be investigated; they do not prove that the content is absent from the whole collection.
 
-Choose a meaningful variation next: change a sample document and refresh. Check that the new text is searchable and that old positions update. If navigation is wrong, trace file reading, index position encoding, interface transport, and panel interpretation to the earliest divergence. Avoid compensating for a source error with a display offset.
+## Leave enough to resume
 
-If attachments were unreadable, the interface should accurately state search coverage. The owner retains attachment support as remaining work. An empty result cannot be reported as proof that the content is absent from all documents.
+A short note could say:
 
-## What to save at interruption
+> Goal: search locally and return to the original text. Keyword results are connected to the page; this delivery links the changes and run instructions. Start with full-text search and compare semantic retrieval if real queries need it. Attachments and automatic updates remain. Next, check reindexing after a file change through the existing refresh entry point. Development copies have separate indexes; the integrator updates the main index. Checks and input versions are in the record.
 
-A short handoff might read:
+In a real project, use actual files and links. The next conversation checks what is there and continues with unfinished work, avoiding duplicate writes and reruns.
 
-> Goal: search documents locally and navigate to originals. The current implementation and runtime entry point are in this delivery; keyword results are connected to the panel. Decision: start with full-text search, then compare extensions if actual queries expose a semantic gap. Confirmed checks and input versions are linked in the corresponding record. Remaining work: attachment coverage and incremental updates. Next: connect one file-change event through the existing refresh entry point and verify that old positions update in the same document. Development copies have independent indexes; the integrator updates the main index.
+## Put useful results back where they belong
 
-The actual record must link real artifacts and checks, rather than retain this illustrative text alone. A successor inspects the current implementation. If the earlier write committed, continue from the unfinished action.
+Implementation and tests stay in the project. If a reusable search component emerges, add its entry to the tool registry. Confirmed discoveries about encoding or formats go in the knowledge library. A method that repeatedly helps may become a skill. The project record keeps the current conclusion and next step. One-off indexes and intermediate output can be cleaned up within the task's scope.
 
-## What remains after completion
-
-Implementation and relevant tests stay in the project. A reusable search component warrants a capability-registry update. Confirmed new format facts belong in the knowledge library. Only a repeatedly useful integration method becomes a skill. The ledger retains current conclusions and next work. Clean up one-off indexes and intermediate output within the task's scope.
-
-The example does not require a unified platform, an MCP release, or a fixed template for every record. Each added structure should explain which repetition or error it reduces.
+Afterward, see what still takes too much effort. A need for ongoing dispatch or another programmatic client can inform whether to add orchestration or MCP support.

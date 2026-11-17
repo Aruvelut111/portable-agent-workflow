@@ -1,46 +1,40 @@
-# 图示与复现 / Figures and reproduction
+# 图示 / Figures
 
-[中文文章](../README.md) · [English article](../README.en.md)
+[中文正文](../README.md) · [English article](../README.en.md)
 
-这些是原创概念示意图，用于解释文章中的关系。图中没有性能数据、真实项目结构或平台兼容性测试结果。英文标签供两种语言正文共用，下面提供完整文字说明。
+文章里的三张图都放在这里，每张有 SVG、PDF 和 PNG。标签用英文，两种语言的说明见下文。图里画的是工作关系，没有性能数据或真实项目结构。
 
-These original conceptual figures explain relationships in the article. They contain no performance data, actual project topology, or platform-compatibility results. Both editions use the same English labels; full text descriptions follow.
+The article's three figures are available here as SVG, PDF, and PNG. They share English labels, with descriptions in both languages below. They show relationships, without performance data or an actual project's structure.
 
-## 01 · 工作材料与执行适配 / Working material and execution adaptation
+## 01 · 库和工作环境 / The library and working environments
 
 [SVG](01-portability.svg) · [PDF](01-portability.pdf) · [PNG](01-portability.png)
 
-规则、知识、流程、能力登记和项目状态构成不同职责的工作材料。当前任务只获取相关上下文，并能继续访问证据。不同 harness 分别接入加载、调用、权限、消息和恢复。材料可迁移，并不证明各平台运行能力相同。
+规则、知识、方法、工具登记和项目进度，按当前任务提供给 Agent。需要细节时还能打开原件。换个工作环境，可以继续使用这些资料，再分别接好规则加载、工具调用、权限、消息和恢复方式。
 
-Rules, knowledge, procedures, capability records, and project state have distinct responsibilities. A task obtains relevant context while retaining access to evidence. Each harness adapts loading, invocation, permissions, messaging, and recovery. Portable material does not establish equivalent runtime capabilities.
+Rules, knowledge, procedures, tool records, and project progress provide context for the task, with originals available for closer reading. The material can be reused in another environment, which still needs its own setup for loading, tool calls, permissions, messaging, and recovery.
 
-## 02 · 协作与集成责任 / Collaboration and integration ownership
+## 02 · 分工和反馈 / Assignments and feedback
 
 [SVG](02-collaboration.svg) · [PDF](02-collaboration.pdf) · [PNG](02-collaboration.png)
 
-用户主要与集成负责人交流目标和重要选择。负责人安排有边界的任务，需要时安排独立审查，并对实际消费者中的可用结果负责。蓝色双向连接表示任务派发与结果反馈。成员围绕具体依赖直接交流，产物和当前状态可被接续。共享文件和运行环境仍需协调，图中成员数量是示意。
+用户主要和项目负责人交流。负责人分任务、收结果，最后把东西接到实际使用的地方。蓝色双向箭头表示派活和反馈，虚线表示成员围绕具体问题的沟通。文件和进度留在能找到的位置。共用同一个应用或运行资源时，要另外协调，免得互相影响。图中的成员数量只是示意。
 
-The user primarily discusses goals and important choices with the integration owner. That owner coordinates bounded work and targeted review when warranted, and is responsible for a usable result in the actual consumer. Blue bidirectional connections show task assignment and result feedback. Workers communicate about specific dependencies and leave artifacts and current state for continuation. Shared files and runtime resources still require coordination. The depicted team size is illustrative.
+The user mainly talks to the project lead, who assigns work, collects results, and connects them to where they will be used. Blue arrows show assignments and feedback; dashed lines show communication about a specific dependency. Files and progress remain accessible. Shared applications and runtime resources need separate coordination. The team size is illustrative.
 
-## 03 · 实际交付、诊断与恢复 / Actual delivery, diagnosis, and recovery
+## 03 · 一直试到实际使用 / Trying the result in use
 
 [SVG](03-delivery.svg) · [PDF](03-delivery.pdf) · [PNG](03-delivery.png)
 
-真实输入经过处理和交接，由消费者加载使用，形成可观察结果。出现差异时，检查第一处与问题相关的语义分歧，再修改受影响的假设或接口。虚线回到处理环节只是示例，调查也可以回到输入、交接或消费者。中断后，依据当前决定和已提交产物确认下一动作，重试前核对已有副作用。
+拿真实输入，经过处理、传递和加载，看最后用起来是否正确。出问题时，沿途找最早出现的差异，修改相关部分。图里画回处理环节只是一个例子，也可以查回输入、传递或使用端。中断后先看上次实际完成了什么，再继续，避免重复执行已经生效的操作。
 
-Real input passes through processing and handoff into a consumer and observable result. Diagnose the earliest relevant semantic divergence, then revise the affected assumption or interface. The dashed return to processing is illustrative: investigation can return to the input, handoff, or consumer. After interruption, current decisions and committed artifacts establish the next action. Check earlier side effects before retrying.
+Take real input through processing, transfer, and loading, then check the result in use. Follow a problem back to its first relevant difference and change the affected part. The return to processing is illustrative; investigation can return to the input, handoff, or application. After an interruption, check what actually completed before continuing, to avoid repeating actions that already took effect.
 
-## 制作方式 / Design method
+## 下载和重新生成 / Downloads and rendering
 
-采用白底、克制配色、统一字号和线宽，用标签及实线/虚线共同表达关系。没有装饰图标、渐变或虚构数据。SVG 将字形保存为路径，减少字体缺失造成的变化；正文与本页提供可读文字替代。PDF 保留矢量形状，PNG 供预览。
+SVG 和 PDF 便于放大或放进其他文档，PNG 用于预览。SVG 把字形保存成路径，减少缺字体带来的变化；需要文字说明，可以看正文和本页。
 
-The figures use white backgrounds, restrained colors, consistent typography and line weights, and redundant labels and line styles. They contain no decorative icons, gradients, or invented data. SVG stores glyphs as paths to reduce font-substitution differences; the article and this page supply readable text alternatives. PDFs retain vector shapes; PNGs provide previews.
-
-图示制作参考了 [K-Dense Scientific Visualization](https://github.com/K-Dense-AI/scientific-agent-skills/blob/main/skills/scientific-visualization/SKILL.md) 的相关原则，来源归属见[研究记录 20–21](../docs/references.md#figure-method)。没有调用外部图像生成服务，绘图代码为本仓库原创。
-
-Relevant guidance came from [K-Dense Scientific Visualization](https://github.com/K-Dense-AI/scientific-agent-skills/blob/main/skills/scientific-visualization/SKILL.md); see [references 20–21](../docs/references.md#figure-method). No external image-generation service was called. The rendering code is original to this repository.
-
-## 复现 / Reproduce
+SVG and PDF are useful for scaling or inclusion in documents; PNG is for preview. SVG stores glyphs as paths to reduce font-substitution changes. The article and this page provide text descriptions.
 
 从仓库根目录执行 / Run from the repository root:
 
@@ -49,10 +43,10 @@ python -m pip install -r requirements-figures.txt
 python figures/render.py
 ```
 
-脚本只覆盖本目录三个具名图示的 SVG/PDF/PNG，不读取业务输入、不联网。Python 3.13 上实跑；依赖版本见 requirements。不同后端和间接依赖可能影响字节，不承诺逐字节相同。
+脚本会覆盖本目录三个具名图示的九个导出文件，不读取项目资料，也不联网。已在 Python 3.13 上运行，直接依赖见 requirements。不同后端和间接依赖可能影响输出字节。
 
-The script overwrites only the three named SVG/PDF/PNG sets in this directory, reads no business inputs, and makes no network calls. It was run on Python 3.13; the direct dependency is in requirements. Backends and transitive dependencies can change bytes; byte-for-byte replay is not promised.
+The script overwrites the nine exports for these three figures. It reads no project inputs and makes no network calls. It has been run on Python 3.13; the direct dependency is in requirements. Backends and transitive dependencies can affect output bytes.
 
-文字边界检查只检查标签是否超出画布。图的含义、箭头和最终阅读效果仍需查看，自动检查不构成论文规范或可访问性认证。
+制作时参考了 [K-Dense Scientific Visualization](https://github.com/K-Dense-AI/scientific-agent-skills/blob/main/skills/scientific-visualization/SKILL.md) 的相关建议，详见[参考资料 20–21](../docs/references.md#figure-method)。图由本仓库原创 Matplotlib 代码绘制，使用白底、简单配色和线型。脚本会检查文字是否超出画布，箭头含义和阅读效果仍要看成图。
 
-The text-boundary check only detects labels outside the canvas. Meaning, arrows, and final readability require inspection. The check is not publication or accessibility certification.
+Relevant guidance came from [K-Dense Scientific Visualization](https://github.com/K-Dense-AI/scientific-agent-skills/blob/main/skills/scientific-visualization/SKILL.md); see [references 20–21](../docs/references.md#figure-method). The figures use original Matplotlib code, white backgrounds, and simple colors and line styles. The script checks whether text extends beyond the canvas. Arrow meanings and readability still need inspection.
