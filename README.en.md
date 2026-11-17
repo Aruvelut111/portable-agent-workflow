@@ -1,152 +1,175 @@
-# How I Organize Work with AI Agents
+# Organizing a Local Agent Workflow
 
-[中文](README.md) · [Worked example](docs/worked-example.en.md) · [References](docs/references.md) · [Figures](figures/README.md)
+**How knowledge, skills, tools, and project records support long-running work, multi-agent collaboration, and continuity across environments.**
 
-After opening several AI conversations at once, I found myself getting busier.
+[中文完整文章](README.md) · [Worked example](docs/worked-example.en.md) · [References](docs/references.md) · [Figures and reproduction](figures/README.md)
 
-One conversation needed background. Another needed a progress check. I had to carry A's output over to B, then help B find the right file. A tool we had already built would get built again in a fresh conversation. Some tasks were marked complete, only for a missing step to turn up when I tried to use the result.
+When AI moves from one-off questions to ongoing work, the problems change. The model still needs to understand a request and exercise judgment, but the project begins to depend on information outside the conversation: why a particular approach was chosen, which parts existing tools can handle, what other contributors have delivered, and which results are already in use.
 
-I started moving useful information out of chat: where a project stood, how to call an existing tool, which discoveries might help next time. Over time, I added ways to divide work, pick it up in another conversation, and maintain the tools. That became the workflow described here.
+If this information stays in chat, the user gradually takes on the coordination work: supplying background, forwarding tasks, locating outputs, and explaining version differences. Adding agents can increase that burden.
 
-It is still changing. Parts of it can help with research, development, creative work, learning, or organizing information. The arrangement depends on the job. I'll start with how I keep the material, then follow a task through the rest of the process.
+This article describes an evolving local workflow that manages reusable knowledge, procedures, tool capabilities, and project state separately, then brings them together for a specific task. These practices have been used in UE projects, game development, and tool development. Research, creative work, learning, and document processing can also adopt relevant parts of the approach, with completion criteria appropriate to each setting.
 
-## 1. Some things need a home outside chat
+The focus is how work is organized, how information is maintained, and how results are handed over. Examples have been generalized and disclose no internal projects, tool implementations, or private material. This is a practice report: public research informs the design choices, but the article reports no cross-platform productivity measurements and does not present unimplemented scheduling features as existing capabilities.
 
-A conversation can hold plenty of detail. Finding the relevant exchange later is another matter. Keeping track of it all becomes tiring as projects accumulate.
+## 1. Design goals: preserve information across the work
 
-I keep the things I often need in a few places:
+A single conversation can often complete a task using its current context. A long-running project repeatedly crosses boundaries: from request to implementation, from one contributor to another, from one session to the next, and from generated output to actual use. Information can be lost at each transition.
 
-| Where | What goes there | When it helps |
+The missing information is often a fact that changes a decision. A successor may see the current plan without knowing which input version it assumes. A tool may return no matches without reporting inputs it failed to parse. Two modules may pass their own tests yet disagree about the meaning of a shared field when integrated.
+
+The workflow therefore addresses three problems:
+
+- **Recovering the basis for decisions.** Important conclusions should lead back to sources, inputs, or actual outputs. Summaries should preserve a route to that evidence.
+- **Connecting responsibility and state.** Contributors need to know what to deliver and who will receive it. Successors need to distinguish work that has taken effect from work still to be done.
+- **Keeping existing capabilities usable.** Tools, procedures, and knowledge should remain identifiable and accessible beyond the conversation in which they were created.
+
+These goals do not require a uniform process. A small task that one agent can complete should stay small. Add records and coordination when continuity, shared changes, or repeated implementation create a real need. The process should be proportionate to the information loss and coordination cost it addresses.[19](docs/references.md#s19)
+
+## 2. Library structure: separate responsibilities and update cycles
+
+The important feature of the library is that each kind of information has a clear place to be maintained. General rules, domain knowledge, procedures, and project state change at different rates. Mixing them creates two recurring problems: temporary conclusions become permanent requirements, while information that needs updating spreads across competing copies.
+
+| Component | Responsibility | Typical reason to update |
 |---|---|---|
-| Working rules | Shared requirements about permission, privacy, and honest reporting | Keep these short because they apply across tasks |
-| Knowledge library | Facts, sources, parameter explanations, and lessons from failures | Look up the relevant material when investigating a problem |
-| Skills | Methods that have proved useful across repeated tasks | Read the relevant procedure when it is needed |
-| Tool registry | Available tools, their entry points, invocation, and limitations | Check whether a useful capability already exists |
-| Project record | Current progress, decisions, files, and remaining work | Resume after a break or hand work to another conversation |
-| Project and scratch directories | Working files, experiments, and intermediate output | Use during the task and tidy up afterward |
+| General rules | Cross-task requirements for authorization, privacy, factual reporting, and shared changes | A working boundary or lasting collaboration principle changes |
+| Knowledge base | Sourced facts, format and parameter descriptions, conditions of use, cases, and failure explanations | New evidence arrives, or a version change affects an earlier conclusion |
+| Skills | Reusable methods, important judgments, and necessary operations | A method improves or an older procedure no longer applies |
+| Tool registry | Function, invocation, inputs and outputs, dependencies, supported scope, and known limitations | A tool is added, an interface changes, or observed behavior differs from its record |
+| Project records | Current goals, decisions, output locations, unfinished work, and next actions | Project state changes in a way that affects continuation |
+| Project workspace | Implementations, source files, experiments, runtime data, and deliverables | Ordinary development and experimentation |
 
-A project record can be brief. It needs to say what we're doing, where we've got to, where the files are, and what comes next. A small task may only need a few sentences.
+References connect these components. A project record points to the current deliverable; a tool entry points to its implementation and usage documentation; a skill refers to relevant domain knowledge. Shared material has one maintained home, while other entry points provide the context and links needed to reach it. This reduces the chance of copies evolving independently.
 
-![Rules, knowledge, procedures, tool entry points, and project progress provide context for the current task. Each working environment still needs its own loading and invocation setup.](figures/01-portability.svg)
+![Rules, knowledge, procedures, tool records, and project state provide task-relevant context and evidence. Each execution environment supplies its own loading and invocation mechanisms.](figures/01-portability.svg)
 
-*These are places for different kinds of information. Folders and Markdown are enough to start.*
+*Figure 1. The library holds maintained working information. Each conversation selects what it needs, while the execution environment handles loading and invocation.*
 
-This makes updates easier. When a tool's invocation changes, update its entry. A project decision belongs with the project. A confirmed discovery about a format goes in the knowledge library. Keep the full explanation in one place and link to it elsewhere, or the copies will eventually disagree.
+Information can move between these locations as its value becomes clearer. Troubleshooting begins in the project. A confirmed format property may belong in the knowledge base; a repeatedly useful method may become a skill; an extracted component may receive a tool entry. The original experiment remains in the project for further inspection. This allows experience to accumulate without turning every task into a library-wide documentation exercise.
 
-Skills deserve the same restraint. A long debugging session does not automatically warrant a procedure that every future agent has to read.
+As the library grows, context selection becomes important. A session starts with relevant entry points and current state, then opens underlying evidence when needed. Summaries help navigation; they cannot replace the material they summarize. OpenAI's repository-knowledge practices and Anthropic's discussions of retrieval, compaction, and external notes provide useful comparisons for this approach.[1–3](docs/references.md#s01)
 
-I usually give a conversation the relevant entry points first and let it open the details as needed. OpenAI's writing on repository knowledge and Anthropic's work on context management describe related approaches.[1–3](docs/references.md#s01)
+Selective loading can still miss relevant information. Entries need useful descriptions, and agents should be able to continue through synonyms, references, and code search. A registry query that finds nothing establishes only that the query found nothing. It does not establish that the capability is absent.
 
-## 2. The solution I suggest may be a detour
+## 3. From request to design: establish the intended use before choosing an implementation
 
-When I ask for something, I can often describe the result I want and suggest a technique I've heard of. I might ask for a vector database because I want my documents to be easier to search. I may not know whether one is needed.
+Users often combine a goal with an initial technical suggestion: “Make these documents easier to search; perhaps we need a vector database.” Easier retrieval is the goal. A vector database is one candidate implementation. An agent needs to distinguish them and assess the suggestion against the actual conditions.
 
-I want the agent to examine what we have and help work out the approach: what the documents look like, how I search them, how much existing tools can do, and where I'll use the result.
+Useful analysis explains the full relationship: what inputs exist, what processing is needed, where the result will be used, and which conditions affect the choice of implementation. For local document search, file types, query habits, update frequency, source navigation, and privacy requirements may determine the architecture before the choice of database does.
 
-Full-text search might cover most queries. If real use turns up cases where similar meanings use different words, we can compare semantic search. If my suggestion takes the long way around, explain why and use a better approach.
+Research into existing solutions should follow these decisions. Local registries, native application features, public libraries, documentation, and papers can all offer reusable parts. Candidates need to be checked for actual inputs and outputs, version support, downstream integration, and maintenance cost. Where necessary, representative inputs can test a critical assumption. Implementation begins once the evidence is sufficient to choose a route.
 
-This needn't produce a planning document for every task. Small jobs can proceed directly. A more involved one may need a sketch or a few paragraphs explaining the design for whoever comes next. Changes to the goal, privacy decisions, spending, and actions that are hard to undo need my input.
+Reuse has several forms. A project may call a mature component directly, use only its parser or data structures, or adopt an interaction technique. If a reference project does not fit the goal, identify the gap and choose adaptation, replacement, or a new implementation. Any savings from existing code need to be assessed alongside the constraints it introduces.
 
-The agent can also discover missing pieces as it works. Earlier ideas remain useful background, and can change when the actual task proves them wrong.
+Research need not stop at keyword search. A useful implementation often leads to upstream dependencies, related issues, other work by its author, and cited papers. Following these relationships can reveal capabilities described under different names. Popularity and bookmarks are leads, not evidence of suitability.
 
-## 3. Look for something we can use before building
+Once a design is clear, record what later work depends on: the main structure, shared interfaces, important choices and their reasons, and assumptions still to be tested. A small change may need only an implementation and a short explanation. The user retains control over goals, authorization, and major commitments. Reversible technical choices within scope remain with the implementer and can change as evidence develops.
 
-Before implementation, I ask the agent to check local tools and records, then relevant public projects, documentation, or papers. Start work once there is enough information to choose an approach.
+## 4. Multi-agent collaboration: divide by dependency and assign integration responsibility
 
-A promising project still needs a closer look: what does it accept, what does it produce, which versions does it support, and can its output go where we need it? A polished demo can be an expensive dependency if integrating it means rewriting most of it.
+The benefit of multiple agents depends on how much work can proceed independently and how expensive it is to combine the results. Independent research, investigation of different hypotheses, and changes in separate areas are often suitable for parallel work. Repeated edits to the same interface or concurrent use of one stateful application can instead create waiting and rework.
 
-Sometimes we can use a whole library. Sometimes one module is enough, or the idea alone is useful. Replace the parts that do not fit. It makes little sense to keep changing our goal to accommodate a reference project.
+A complex project can use a main coordination point responsible for delivery and integration. This role maintains goals, important dependencies, and shared decisions, and brings completed contributions into the working result. Implementation details remain with the relevant tasks and outputs. Users can still speak directly to contributors, and contributors can discuss concrete dependencies with one another, recording changes that affect the wider project.
 
-A good repository can lead to more useful material through its dependencies, issues, author's other work, and related papers. Stars and bookmarks help find leads. Trying our own input tells us whether a lead is useful.
+![Assignments and feedback connect the user, integration lead, and contributors. Contributors can communicate about dependencies and continue through shared outputs and state.](figures/02-collaboration.svg)
 
-The same applies locally. If the registry search misses something, look in the code, try different words, or browse the directories. A capability may exist under a name nobody thought to search for.
+*Figure 2. Keep goals and integration responsibility coordinated while distributing exploration and implementation by dependency. Team size and communication links are illustrative.*
 
-## 4. Divide work without making me forward everything
+A task assignment should provide enough information to start independently: the goal, real inputs, permitted changes, expected output, completion criteria, and delivery location. Add constraints for shared interfaces, privacy, and budget as needed. The delegator's search history, samples, and candidate methods remain evidence that the implementer can revise in light of new findings.
 
-I'd like one main conversation to keep track of the project: understand the request, assign work, collect results, and bring the pieces together. Detailed work can go elsewhere, with important decisions and current progress kept somewhere we can find them.
+The collaboration format should also fit the duration of the work. Subagents suit bounded tasks whose results can be collected. Long-lived modules may benefit from their own conversations and workspaces. Both need an identified recipient for the deliverable; otherwise, a contributor can finish without anyone taking responsibility for integration.
 
-Two independent tasks can run together. If one needs an interface from the other, settle that interface first. Those dependencies largely determine how to divide the work.
+Separating file changes addresses only one source of interference. Independent worktrees isolate code edits, but databases, indexes, browser sessions, editors, GPUs, and output directories may still be shared. Their concurrency behavior needs to be checked. Resources that cannot safely be shared need an owner or an execution order.
 
-![The user mainly talks to the project lead. The lead assigns work and receives results, workers can discuss specific dependencies directly, and files and progress remain in shared locations.](figures/02-collaboration.svg)
+External examples support choosing collaboration according to task structure. Anthropic's research system and Codex subagents illustrate delegation and context separation. MAST and research on scaling agent systems examine failures in coordination, alignment, and verification. Gains in research workloads cannot simply be transferred to tightly coupled engineering projects; adoption still requires observation of the actual workload.[7–10](docs/references.md#s07)
 
-*Blue arrows show assignments and feedback. Dashed lines show communication between workers. The number of workers is illustrative.*
+## 5. Tool design: interpretable results and failures that remain open to investigation
 
-A task description should be enough to begin: what to do, where the input is, what can change, what to deliver, and how to judge whether it works. Add known pitfalls and things that must be left alone. The worker can choose different search terms, samples, or candidate solutions.
+Tools are useful for deterministic processing, repeated operations, batch work, and control of external applications. Whether a capability deserves a tool depends on whether it removes real repetition, isolates a changing interface, or reduces an important source of error. A one-off judgment the model can already make rarely needs another wrapper.
 
-Workers can discuss an interface directly and record the resulting decision. An investigation should return files or entry points that the next person can use. That saves me from explaining the handoff again.
+Existing capabilities should be reused at a level that can be called independently. Add an interface when it provides a concrete integration benefit. For example, a stable parsing core can serve both a command-line interface and MCP. That does not require combining every tool into one platform.
 
-Extra conversations can also make a job harder. Several agents changing one file or using the same editor can create a mess. Worktrees separate code changes, while databases, browsers, GPUs, and application state still need their own arrangements. Some work simply needs to happen in sequence.
+Ambiguous results are a particular concern. The same empty response can conceal very different outcomes:
 
-Subagents are useful for investigating a question, trying another approach, or making a fairly independent change. A long-running module can keep its own conversation. A small job can stay with one agent. Official examples and multi-agent research offer useful discussion of both the gains and coordination costs.[7–10](docs/references.md#s07)
+| Actual outcome | What the caller needs to know |
+|---|---|
+| No match in the processed scope | What was processed and searched, and under which conditions |
+| Only part of the input was processed | Coverage, reasons for exclusions, and where to inspect further |
+| Execution failed | The failing stage, useful diagnostics, and the underlying error |
+| A request was submitted and is still running | Current state and how to wait for or retrieve the result |
+| Output was generated | Its location and version, with downstream loading marked unverified if it was not checked |
 
-## 5. Make the next conversation easier to start
+These are distinctions to preserve, not a mandatory return schema. A simple tool can explain them in text. An interface used for batch processing can provide appropriate structured fields.
 
-A successor needs to know where things stand. Usually that means the current goal, usable files, the reason for the chosen approach, unresolved work, and a concrete next action.
+Negative conclusions deserve particular care. An unsupported format, an incorrect search root, or data that has not loaded can all produce false negatives. The agent should be able to inspect the original input, invocation parameters, and errors, use another method, and, where necessary, reject the tool's interpretation. A tool should make more of the operation observable so the model can judge the scope of the result.
 
-For example:
+People and agents should use the same functional semantics wherever practical: the same input scope, the same meaning for options, and corresponding outputs. Machine interfaces can be more structured without quietly changing what an operation means.
 
-> Search results are connected to the page and open the original text. This delivery links the changes and run instructions. Attachments and automatic updates are still pending. Next, use the existing refresh feature to try reindexing after one file changes. An earlier position format opened the wrong line; the corresponding record explains why.
+## 6. Delivery and verification: follow real input through actual use
 
-The real note needs real links. Start by checking the files and what is currently running, then consult relevant history if they disagree. Keep useful earlier findings and the reasons for abandoned approaches, so that the next conversation can avoid repeating them.
+Module tests establish local behavior. The complete usage path needs its own check. A converter can successfully write a file that a downstream application misinterprets because of identifiers, encoding, units, coordinates, or timing. Document, retrieval, and creative tasks have analogous problems: once content is generated, a reader or application still needs to use it as intended.
 
-There is also the problem of a message being sent and nothing happening afterward. More written conventions won't fix that on their own. Ongoing dispatch needs software that tracks receipt, execution, output, and integration. After an interruption, it needs to find out how far the previous attempt got before retrying.
+Early in a project, choose a real path that exercises the important new dependencies and connect input, processing, handoff, and use. This exposes interface mismatches and misunderstandings before large-scale production.
 
-Existing state services, execution interfaces, and orchestration projects can help. ADK, LangGraph, and Codex app-server are worth examining for a specific need. Recovery and retries still have to be tried on our own tasks after connecting them.[11–15](docs/references.md#s11)
+![Real input passes through processing and handoff to an application or reader. Differences are traced back to the relevant stage; interrupted work resumes from confirmed results.](figures/03-delivery.svg)
 
-## 6. Keep the useful work when changing tools
+*Figure 3. Check the path through the result in use. Diagnosis may return to input, processing, handoff, or use; recovery first establishes which operations have already taken effect.*
 
-I use different agent tools. Codex, Claude Code, and Antigravity can each be an entry point. The word *harness* sometimes appears in this discussion: it means the software managing context, tool calls, permissions, and execution.
+When a result is wrong, compare the stages along the dependency path to locate the first relevant divergence. Then correct the affected assumption, data, or implementation. Repeating the final operation rarely fixes a semantic error upstream.
 
-Goals, established facts, tool instructions, procedures, and file locations can live outside any one tool. Bringing those into a new environment saves a lot of background explanation.
+The first working path demonstrates feasibility, not completion of the whole goal. Later checks should introduce differences that could change the conclusion: another input type, a different scale, updated data, reopening, or recovery after interruption. The need for independent review, full regression, or human observation depends on consequences and uncertainty.
 
-Execution needs separate setup. Reading rules, connecting tools, assigning tasks, waiting for results, and controlling local applications work differently across environments. After copying files, check what the current conversation actually loaded and can call.
+These variations also test the limits of reuse. A second object may require only different data, or it may reveal a new mechanism that needs an adapter or a change to the core. A reusable design should leave room for this evolution rather than hide special cases to preserve a claim of “no code changes.” Only behavior that is genuinely shared warrants becoming a shared capability.
 
-Agent Skills, MCP, and ACP cover some of the formats and interfaces, and are useful where they fit.[4–6](docs/references.md#s04) My main concern is being able to find and use earlier work after changing tools. Automatic teams and ongoing scheduling across environments still need dedicated implementation.
+## 7. Continuity across environments: share information, adapt execution
 
-## 7. A tool's empty result should leave room to investigate
+Here, a harness is the software layer that organizes model execution, including context assembly, tool calls, permissions, and the execution loop. Codex, Claude Code, and Antigravity offer different working environments. Their loading and runtime behavior need to be checked individually.
 
-As the tool collection grows, one failure worries me: a tool fails to read something, and the agent concludes it doesn't exist.
+Reuse across environments has two parts:
 
-A search can return nothing because there was no match, the wrong directory was selected, a format was unsupported, or part of the input never loaded. An empty list alone makes those cases hard to distinguish.
+| Layer | What can be retained | What needs checking in a new environment |
+|---|---|---|
+| Working information | Goals, facts, methods, decisions, interface descriptions, and output references | Whether the current version is accessible and relevant information reaches the conversation |
+| Execution mechanisms | Reusable tool implementations and protocol integrations | Rule loading, tool connections, permissions, session control, messaging, waiting, and recovery |
 
-A tool should make it possible to see what it examined, what it read, what failed, and the original error. The agent can then try another tool, inspect the file, or fix the invocation. It should also be able to overturn the tool's interpretation.
+Keeping the basis of project work in readable text, files, and necessary structured data reduces migration costs. Moving that information does not establish execution continuity. A synchronized file may not have been loaded by the new session. A registered tool may not be connected. A messaging interface does not establish automatic task follow-up.
 
-Success needs similar care. Getting a request accepted, writing a file, loading it in an application, and getting the right result are separate steps.
+Existing specifications can handle appropriate parts of the problem. Agent Skills defines file organization for reusable procedures. MCP connects hosts to external capabilities. ACP provides communication between clients and coding agents. Goals, responsibility for shared changes, and criteria for completed integration still need to be arranged above those interfaces.[4–6](docs/references.md#s04)
 
-I want tools to save repetitive work: indexing, parsing, converting, batch operations, and application control. The agent can handle straightforward judgments itself. A tool is worth maintaining when it saves effort, prevents meaningful errors, or handles a changing interface we keep needing.
+Infrastructure can separate these concerns more deeply. Managed Agents, for example, manages sessions, harnesses, and execution environments separately. That is related to preserving local working information but operates at a different layer. Content portability should not be presented as equivalent runtime isolation.[17](docs/references.md#s17)
 
-## 8. Try the result where it will be used
+In practice, adapt to a concrete capability gap rather than building an abstraction for every client in advance. First make goals, outputs, and supporting evidence reusable. Then address the particular operations that need to execute across environments.
 
-Several tasks can be marked complete while their combined result still fails. The later this becomes visible, the more work may need to be redone.
+## 8. State and scheduling: implement recoverable records and reliable execution separately
 
-I prefer to take a real input through the whole process early. For search, enter a term, see the result, and open the correct original. For a conversion, load the output in the program that will use it next.
+Continuation across sessions starts with current facts. A handoff usually needs the goal and constraints, confirmed outputs and versions, important decisions and their reasons, unresolved problems, and the next action. Add workspace, environment, and background-job details where they are relevant.
 
-![Real input passes through processing and handoff to actual use and an observable result. Investigate discrepancies along that path and resume interrupted work from existing results.](figures/03-delivery.svg)
+A successor checks current files and actual runtime state first. If they disagree with the record, revisit the assumptions that affect the next action. Historical records retain their original inputs and conditions; new decisions identify what they supersede, so an abandoned approach does not reappear after a session change. Anthropic's work on long-running agents also discusses the role of external progress records in continuation.[3](docs/references.md#s03)
 
-*Trace a problem back to the first point where things went wrong. The return to processing shown here is one example.*
+Automatic scheduling requires additional mechanisms. A task being sent, started, producing an output, and being integrated are different facts. A heartbeat proves that a record was written at a particular time; it does not prove that the process is still running. Successful message delivery does not establish that the recipient has acted on it.
 
-Once the file opens, check what happened to its contents. Do names still identify the right objects? Are units, orientation, and timing correct? Did the next step lose information it needs? Follow the problem through reading, processing, transfer, and loading before adding compensation at the end.
+A system that continually dispatches work needs concrete handling for task identity, result correlation, queryable execution state, and retry decisions after interruption. Publishing, importing, and database writes require particular care. After a connection timeout, establish whether the earlier operation took effect before retrying. A persisted checkpoint does not automatically guarantee that an external action occurs only once.
 
-After the first path works, keep the rest of the goal in view. Try another input, reopen the application, or test an update. Choose a variation likely to reveal a new problem.
+Google ADK state services, LangGraph persistence, and Codex app-server provide state management, checkpoints, and execution interfaces, respectively. They can reduce infrastructure work, but the choice depends on the existing gap.[11–13](docs/references.md#s11) Projects such as Agent Orchestrator and Vibe Kanban also provide task organization, workspace, or session-control capabilities and deserve evaluation before building an alternative.[14–15](docs/references.md#s14)
 
-A second input is particularly helpful when building something reusable. It shows which parts are shared and which assumptions happened to hold for the first case. A difference may call for an adapter, a replacement module, or a change to the core. Identify the affected parts and check them.
+Local records and reliable scheduling can develop incrementally. If the immediate problem is locating the latest output, better records already help. If the user is still forwarding tasks and repeatedly asking for progress, dispatch, waiting, and event handling may be the next useful addition. Separating these needs helps avoid introducing a large platform where a clear entry point would suffice.
 
-## 9. The workflow needs tidying too
+## 9. Maintenance and adoption: add or remove process according to its value
 
-Rules accumulate easily. A problem leads to a rule, then another problem leads to another. Eventually, preparing to work can become more complicated than the work itself.
+A workflow accumulates both useful rules and outdated compensations. As models, tools, and project conditions change, steps that were once necessary can lose their value. Restrictions introduced after a local failure can also obstruct later work. Anthropic's subsequent harness experiments illustrate why some structures need reassessment as model capabilities change.[16](docs/references.md#s16)
 
-I revisit them: what does this rule still prevent? If the tool has been fixed, is the old reminder useful? Are two procedures doing the same thing? Some structure was compensating for limitations in an earlier model and deserves another look as models improve. Anthropic's later harness experiments also discuss removing practices that were no longer helping.[16](docs/references.md#s16)
+Maintenance can address concrete questions. Which error does a rule prevent, and can it still occur under current conditions? Does a skill have an up-to-date basis? Is a tool entry callable? Can a project record guide the next person or agent? Preserve what works, correct what no longer applies, and consolidate duplicate explanations without rewriting the entire library for consistency alone.
 
-Checks should fit the job. Run a check that answers the relevant question, then continue. An important design or public release may deserve an independent review. For visual work and interaction, I need to see the actual result. Repeatedly confirming that a file exists adds little.
+Verification should support the current decision. Check a local change at its own scope; check affected paths when a shared interface changes; add independent verification for public releases and consequential conclusions. Visual, interaction, and editorial quality require showing the actual result so the user can judge it. Antigravity artifacts offer one implementation reference for inspectable plans and results; confirmation behavior still depends on the environment.[18](docs/references.md#s18)
 
-To try this approach, start with one project that keeps requiring explanations. Leave clear links to the current files and next action, then document one tool you often have to find again. Add more when it helps. If ongoing scheduling becomes necessary, look at existing projects such as AO and Vibe Kanban and work out which part they could handle.[14–15](docs/references.md#s14)
+Adoption can begin with one project that repeatedly requires background explanations or forwarded results. Make its current output and next action easy to find, document the capability most often reused, and extract methods that have proved useful more than once. Add contributors when there is independent work. Add scheduling when there is a continuing need to dispatch it.
 
-We still miss updates, misunderstand things, duplicate work, and run into trouble sharing application state. There is more to improve. I look for practical signs of progress: fewer messages to forward, less background to repeat, and more earlier work that we can use again.
+Useful observations include smoother handoffs, less manual forwarding, less repeated implementation, and more reliable integration into actual use. These are directions for future comparison; this article reports no quantitative findings for them. Semantic misunderstandings, stale records, retrieval omissions, and shared application state remain ongoing problems.
 
-## Further reading
+## Further reading and license
 
-- [A worked example: search in a local document browser](docs/worked-example.en.md)
-- [References and what informed this workflow](docs/references.md)
-- [Figure downloads and rendering instructions](figures/README.md)
+- [Worked example: adding search to a local document browser](docs/worked-example.en.md)
+- [References and how they inform the article](docs/references.md)
+- [Original figures, descriptions, and rendering instructions](figures/README.md)
 
-The article, original figures, and examples use [CC BY 4.0](LICENSE). Referenced third-party material retains its own terms. Examples have been abstracted. This is a personal account of practice, without a controlled comparison of productivity across platforms.
+The article, original figures, and original examples in this repository are licensed under [CC BY 4.0](LICENSE). Third-party material is provided through citations and links and remains subject to its owners' rights. The license does not cover unpublished local material. This is an independent practice report and does not represent the official position of any platform mentioned.
