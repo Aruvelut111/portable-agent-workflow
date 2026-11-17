@@ -1,0 +1,2 @@
+# Direct dependency used to render the original figures.
+matplotlib==3.11.2
